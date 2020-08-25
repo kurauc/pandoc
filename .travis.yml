@@ -37,7 +37,7 @@ install:
       mkdir -p ${RESOURCES}
       mkdir -p ${DEST}/bin
       mkdir -p ${DEST}/share/man/man1
-      ./stack build pandoc pandoc-citeproc
+      stack build pandoc pandoc-citeproc
       for f in $(find .stack-work/install -name 'pandoc*' -perm +001 -type f); do cp $f ${DEST}/bin/; done
       strip ${DEST}/bin/pandoc
       strip ${DEST}/bin/pandoc-citeproc
