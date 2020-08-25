@@ -9,6 +9,7 @@ cache:
   timeout: 1000
   directories:
     - $HOME/.stack/
+    - /usr/local
 
 branches:
   only:
@@ -18,6 +19,7 @@ branches:
 install:
   - set -e
   - ulimit -n 4096
+  - brew install haskell-stack
   - which stack
   - stack --version
   - stack setup
