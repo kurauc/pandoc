@@ -1,0 +1,51 @@
+sudo: false
+os: osx
+language: generic
+
+addons:
+  artifacts: true
+
+cache:
+  timeout: 1000
+  directories:
+    - $HOME/.stack/
+
+branches:
+  only:
+    - master
+    - travis
+
+install:
+  - set -e
+  - ulimit -n 4096
+  - which stack
+  - stack --version
+  - stack setup
+  - stack exec -- ghc --version
+  - |
+      export VERSION=$(grep '^[Vv]ersion:' pandoc.cabal | awk '{print $$2;}')
+      export BASEDIR=$(pwd)
+      export ARTIFACTS=${BASEDIR}/macos-release-candidate
+      export RESOURCES=${ARTIFACTS}/Resources
+      export ROOT=${ARTIFACTS}/pandoc
+      export DEST=${ROOT}/usr/local
+      export ME=$(whoami)
+      export BASE=pandoc-$VERSION
+      mkdir -p ${ARTIFACTS}
+      mkdir -p ${RESOURCES}
+      mkdir -p ${DEST}/bin
+      mkdir -p ${DEST}/share/man/man1
+      ./stack build pandoc pandoc-citeproc
+      for f in $(find .stack-work/install -name 'pandoc*' -perm +001 -type f); do cp $f ${DEST}/bin/; done
+      strip ${DEST}/bin/pandoc
+      strip ${DEST}/bin/pandoc-citeproc
+      cp man/pandoc.1 ${DEST}/share/man/man1/pandoc.1
+      ${DEST}/bin/pandoc-citeproc --man > \
+        $DEST/share/man/man1/pandoc-citeproc.1
+      ${DEST}/bin/pandoc -t html5 -s COPYING.md -Vpagetitle=License \
+        -o ${RESOURCES}/license.html
+      chown -R $ME:staff ${ROOT}
+      sed -e "s/PANDOCVERSION/${VERSION}/" macos/distribution.xml.in > ${ARTIFACTS}/distribution.xml
+      cp macos/Makefile ${ARTIFACTS}/
+      echo ${VERSION} > ${ARTIFACTS}/version.txt
+      artifacts upload "${ARTIFACTS}"
