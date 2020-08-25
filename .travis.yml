@@ -9,7 +9,6 @@ cache:
   timeout: 1000
   directories:
     - $HOME/.stack/
-    - /usr/local
     - .stack-work/
 
 branches:
@@ -38,17 +37,19 @@ install:
       mkdir -p ${RESOURCES}
       mkdir -p ${DEST}/bin
       mkdir -p ${DEST}/share/man/man1
-      stack build pandoc pandoc-citeproc
-      for f in $(find .stack-work/install -name 'pandoc*' -perm +001 -type f); do cp $f ${DEST}/bin/; done
-      strip ${DEST}/bin/pandoc
-      strip ${DEST}/bin/pandoc-citeproc
-      cp man/pandoc.1 ${DEST}/share/man/man1/pandoc.1
-      ${DEST}/bin/pandoc-citeproc --man > \
-        $DEST/share/man/man1/pandoc-citeproc.1
-      ${DEST}/bin/pandoc -t html5 -s COPYING.md -Vpagetitle=License \
-        -o ${RESOURCES}/license.html
-      chown -R $ME:staff ${ROOT}
-      sed -e "s/PANDOCVERSION/${VERSION}/" macos/distribution.xml.in > ${ARTIFACTS}/distribution.xml
-      cp macos/Makefile ${ARTIFACTS}/
-      echo ${VERSION} > ${ARTIFACTS}/version.txt
-      artifacts upload "${ARTIFACTS}"
+      stack build --dependencies-only pandoc
+#     pandoc-citeproc
+#     stack build pandoc pandoc-citeproc
+#     for f in $(find .stack-work/install -name 'pandoc*' -perm +001 -type f); do cp $f ${DEST}/bin/; done
+#     strip ${DEST}/bin/pandoc
+#     strip ${DEST}/bin/pandoc-citeproc
+#     cp man/pandoc.1 ${DEST}/share/man/man1/pandoc.1
+#     ${DEST}/bin/pandoc-citeproc --man > \
+#       $DEST/share/man/man1/pandoc-citeproc.1
+#     ${DEST}/bin/pandoc -t html5 -s COPYING.md -Vpagetitle=License \
+#       -o ${RESOURCES}/license.html
+#     chown -R $ME:staff ${ROOT}
+#     sed -e "s/PANDOCVERSION/${VERSION}/" macos/distribution.xml.in > ${ARTIFACTS}/distribution.xml
+#     cp macos/Makefile ${ARTIFACTS}/
+#     echo ${VERSION} > ${ARTIFACTS}/version.txt
+#     artifacts upload "${ARTIFACTS}"
